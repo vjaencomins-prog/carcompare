@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoSelect - Selector Profesional de Vehículos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>🚗 AutoSelect</h1>
+        <p class="subtitle">Selecciona el vehículo perfecto para ti</p>
+    </header>
+
+    <main class="container">
+        <section class="hero-section">
+            <h2>¿Cuál es tu primer coche ideal?</h2>
+            <p>Te presentamos 3 sugerencias basadas en popularidad y rendimiento</p>
+            <div id="sugerencias" class="sugerencias-grid"></div>
+            <div class="cta-section">
+                <button id="ver-todos" class="btn-primary">Ver Todos los Vehículos</button>
+            </div>
+        </section>
+
+        <section class="search-section" id="search-section" style="display: none;">
+            <div class="search-box">
+                <input type="text" id="busqueda" placeholder="🔍 Busca por marca, modelo, año..." class="search-input">
+            </div>
+            <div class="filters">
+                <label>Filtrar por:</label>
+                <select id="filtro-combustible" class="filter-select">
+                    <option value="">Todos los combustibles</option>
+                    <option value="gasolina">Gasolina</option>
+                    <option value="diésel">Diésel</option>
+                    <option value="híbrido">Híbrido</option>
+                    <option value="eléctrico">Eléctrico</option>
+                </select>
+                <select id="filtro-año" class="filter-select">
+                    <option value="">Todos los años</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018 o anterior</option>
+                </select>
+            </div>
+            <p class="info-text">💡 Busca marcas y modelos específicos o usa vPIC (API NHTSA) para resultados del mercado mundial.</p>
+        </section>
+
+        <section class="results-section" id="results-section" style="display: none;">
+            <div id="lista-coches" class="lista-coches"></div>
+        </section>
+
+        <section class="comparador-section">
+            <h2>📊 Comparador (Máx. 3 coches)</h2>
+            <div id="comparador" class="comparador"></div>
+            <button id="limpiar-comparador" class="btn-limpiar">Vaciar comparador</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 AutoSelect. Datos reales de APIs públicas</p>
+    </footer>
+
+    <script src="https://carimagesapi.com/assets/js/carimages.js" data-api-key="ci_a3b2bf998dc316247cc0311ccc73db8491365d94d9edacb8961dc36c" async></script>
+    <script src="script.js"></script>
+</body>
+</html>
