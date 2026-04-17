@@ -8,7 +8,20 @@
 </head>
 <body>
 
+    <div class="category-dropdown">
+        <button id="toggle-category-panel" class="category-toggle">Categorías ▾</button>
+        <div id="category-panel" class="category-panel hidden">
+            <label class="category-option"><input type="checkbox" class="category-checkbox" value="4x4"> 4x4</label>
+            <label class="category-option"><input type="checkbox" class="category-checkbox" value="lujo"> Lujo</label>
+            <label class="category-option"><input type="checkbox" class="category-checkbox" value="daily"> Daily</label>
+            <label class="category-option"><input type="checkbox" class="category-checkbox" value="diesel"> Diésel</label>
+            <label class="category-option"><input type="checkbox" class="category-checkbox" value="gasolina"> Gasolina</label>
+            <label class="category-option"><input type="checkbox" class="category-checkbox" value="electrico"> Eléctrico</label>
+        </div>
+    </div>
+
     <header class="header">
+        <button id="btn-home" class="btn-home" style="display: none;">← Volver a inicio</button>
         <h1>🚗 AutoSelect</h1>
         <p class="subtitle">Selecciona el vehículo perfecto para ti</p>
     </header>
@@ -52,6 +65,17 @@
 
         <section class="results-section" id="results-section" style="display: none;">
             <div id="lista-coches" class="lista-coches"></div>
+        </section>
+
+        <section class="cart-section" id="cart-section">
+            <h2>🛒 Cesta de la compra</h2>
+            <div id="cart-items" class="cart-items">
+                <p>No hay coches en la cesta.</p>
+            </div>
+            <div class="cart-summary">
+                <p>Total: <strong id="cart-total">$0</strong></p>
+                <button id="checkout-button" class="btn-primary" disabled>Comprar ahora</button>
+            </div>
         </section>
 
         <section class="comparador-section">

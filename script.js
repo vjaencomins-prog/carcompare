@@ -1,5 +1,6 @@
 let coches = [];
 let comparados = [];
+let carrito = [];
 let resultadosActuales = [];
 let vpicMakes = [];
 let modoBusqueda = false; // false = modo sugerencias, true = modo búsqueda
@@ -65,6 +66,136 @@ function escapeHtmlAttribute(value) {
         .replace(/>/g, '&gt;');
 }
 
+const CATEGORIAS = ['4x4', 'lujo', 'daily', 'diesel', 'gasolina', 'electrico'];
+
+function obtenerCategoriasCoche(coche) {
+    const categorias = [];
+    const combustible = normalizarTexto(coche.combustible || '');
+    const traccion = normalizarTexto(coche.traccion || '');
+    const precio = Number(coche.precio) || 0;
+    const marca = normalizarTexto(coche.marca || '');
+    const modelo = normalizarTexto(coche.modelo || '');
+
+    if (traccion.includes('4x4') || traccion.includes('awd') || traccion.includes('4wd')) {
+        categorias.push('4x4');
+    }
+
+    if (precio > 100000 || marca === 'ferrari' || marca === 'aston martin' || marca === 'delorean') {
+        categorias.push('lujo');
+    }
+
+    if (precio > 0 && precio <= 45000 && !categorias.includes('lujo')) {
+        categorias.push('daily');
+    }
+
+    if (combustible.includes('diésel') || combustible.includes('diesel')) {
+        categorias.push('diesel');
+    }
+
+    if (combustible.includes('gasolina')) {
+        categorias.push('gasolina');
+    }
+
+    if (combustible.includes('eléctrico') || combustible.includes('electrico')) {
+        categorias.push('electrico');
+    }
+
+    // Asegurar que los Ferraris, Aston Martin y DeLorean siempre sean de lujo
+    if ((marca === 'ferrari' || marca === 'aston martin' || marca === 'delorean') && !categorias.includes('lujo')) {
+        categorias.push('lujo');
+    }
+
+    return categorias;
+}
+
+function obtenerCategoriasSeleccionadas() {
+    return Array.from(document.querySelectorAll('.category-checkbox'))
+        .filter(input => input.checked)
+        .map(input => input.value);
+}
+
+function filtrarPorCategorias(lista) {
+    const seleccionadas = obtenerCategoriasSeleccionadas();
+    if (!seleccionadas.length) return lista;
+
+    return lista.filter(coche => {
+        const categoriasCoche = obtenerCategoriasCoche(coche);
+        return seleccionadas.every(cat => categoriasCoche.includes(cat));
+    });
+}
+
+function actualizarCarrito() {
+    const cartItems = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+    const checkoutButton = document.getElementById('checkout-button');
+
+    if (!carrito.length) {
+        cartItems.innerHTML = '<p>No hay coches en la cesta.</p>';
+        cartTotal.textContent = '$0';
+        checkoutButton.disabled = true;
+        return;
+    }
+
+    const total = carrito.reduce((sum, coche) => sum + (Number(coche.precio) || 0), 0);
+    cartTotal.textContent = `$${total.toLocaleString()}`;
+    checkoutButton.disabled = false;
+
+    cartItems.innerHTML = carrito.map((coche, index) => {
+        const precio = coche.precio ? `$${Number(coche.precio).toLocaleString()}` : 'Precio no disponible';
+        return `
+            <div class="cart-item">
+                <div>
+                    <p><strong>${coche.marca} ${coche.modelo || ''}</strong></p>
+                    <p>${precio}</p>
+                </div>
+                <button onclick="eliminarDelCarrito(${index})">Eliminar</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function comprarCoche(index) {
+    const coche = resultadosActuales[index];
+    if (!coche) return;
+    if (!coche.precio) {
+        alert('Este coche no tiene precio disponible. Contacta con nosotros para más información.');
+        return;
+    }
+
+    if (carrito.some(item => item.marca === coche.marca && item.modelo === coche.modelo && item.año === coche.año)) {
+        alert('Este coche ya está en la cesta.');
+        return;
+    }
+
+    carrito.push(coche);
+    actualizarCarrito();
+    alert(`${coche.marca} ${coche.modelo} añadido a la cesta.`);
+}
+
+function comprarSugerencia(index) {
+    const sugerencias = obtenerSugerencias();
+    const coche = sugerencias[index];
+    if (!coche) return;
+    if (!coche.precio) {
+        alert('Este coche no tiene precio disponible. Contacta con nosotros para más información.');
+        return;
+    }
+
+    if (carrito.some(item => item.marca === coche.marca && item.modelo === coche.modelo && item.año === coche.año)) {
+        alert('Este coche ya está en la cesta.');
+        return;
+    }
+
+    carrito.push(coche);
+    actualizarCarrito();
+    alert(`${coche.marca} ${coche.modelo} añadido a la cesta.`);
+}
+
+function eliminarDelCarrito(index) {
+    carrito.splice(index, 1);
+    actualizarCarrito();
+}
+
 function construirImgCarImages(coche, clase, ancho = 400, alto = 250) {
     const marca = escapeHtmlAttribute(coche.marca || '');
     const modelo = escapeHtmlAttribute(coche.modelo || '');
@@ -76,26 +207,37 @@ function construirImgCarImages(coche, clase, ancho = 400, alto = 250) {
 }
 
 function obtenerSugerencias() {
-    // Seleccionar hasta 3 coches populares de diferentes categorías
-    const sugerencias = [];
+    // 1. El coche más económico (menor precio)
+    const masBajo = coches.reduce((min, c) => {
+        const pMin = Number(min.precio) || Infinity;
+        const pC = Number(c.precio) || Infinity;
+        return pC < pMin ? c : min;
+    });
 
-    const sedan = coches.find(c => normalizarTexto(c.carroceria) === 'sedan' && c.año >= 2023);
-    if (sedan) sugerencias.push({...sedan, destacado: 'Más Vendido'});
+    // 2. El mejor calidad-precio (potencia/precio más alto)
+    const mejorCalidad = coches.reduce((best, c) => {
+        const potC = Number(c.potencia) || 0;
+        const precioC = Number(c.precio) || Infinity;
+        const relacionC = precioC > 0 ? potC / precioC : 0;
 
-    const suv = coches.find(c => normalizarTexto(c.carroceria) === 'suv' && c.año >= 2023);
-    if (suv) sugerencias.push({...suv, destacado: 'Familiar Favorito'});
+        const potB = Number(best.potencia) || 0;
+        const precioB = Number(best.precio) || Infinity;
+        const relacionB = precioB > 0 ? potB / precioB : 0;
 
-    const electrico = coches.find(c => normalizarTexto(c.combustible) === 'electrico');
-    if (electrico) sugerencias.push({...electrico, destacado: 'Ecológico'});
+        return relacionC > relacionB ? c : best;
+    });
 
-    // Si no hay suficientes sugerencias por categoría, completar con los primeros coches disponibles
-    if (sugerencias.length < 3) {
-        coches.some(coche => {
-            if (sugerencias.length >= 3) return true;
-            if (sugerencias.some(s => s.marca === coche.marca && s.modelo === coche.modelo)) return false;
-            sugerencias.push({...coche, destacado: sugerencias.length === 0 ? 'Recomendado' : sugerencias.length === 1 ? 'Seleccionado' : 'Ideal'});
-            return false;
-        });
+    // 3. Un coche eléctrico
+    const electricos = coches.filter(c => normalizarTexto(c.combustible).includes('electrico'));
+    const electrico = electricos.length > 0 ? electricos[Math.floor(Math.random() * electricos.length)] : null;
+
+    const sugerencias = [
+        {...masBajo, destacado: 'Más Económico'},
+        {...mejorCalidad, destacado: 'Mejor Relación Precio-Potencia'},
+    ];
+
+    if (electrico) {
+        sugerencias.push({...electrico, destacado: 'Eléctrico'});
     }
 
     return sugerencias.slice(0, 3);
@@ -120,6 +262,7 @@ function mostrarSugerencias() {
         const traccion = coche.traccion || 'N/A';
         const carroceria = coche.carroceria || 'N/A';
         const precio = coche.precio ? `$${coche.precio.toLocaleString()}` : 'Precio no disponible';
+        const categorias = obtenerCategoriasCoche(coche);
         const imagenHTML = construirImgCarImages(coche, 'sugerencia-imagen', 400, 250);
 
         const div = document.createElement('div');
@@ -128,6 +271,12 @@ function mostrarSugerencias() {
         div.innerHTML = `
             ${imagenHTML}
             <h3>${coche.marca} ${modelo}</h3>
+            <div class="coche-tags">
+                ${categorias.map(cat => {
+                    const safeClass = cat.replace(/[^a-z0-9]+/gi, '-');
+                    return `<span class="coche-tag tag-${safeClass}">${cat}</span>`;
+                }).join('')}
+            </div>
             <span class="destacado">${coche.destacado}</span>
             <p><strong>⚙️ Motor:</strong> ${cilindros} cilindros</p>
             <p><strong>💨 Potencia:</strong> ${potencia}</p>
@@ -135,6 +284,7 @@ function mostrarSugerencias() {
             <p><strong>💰 Precio:</strong> ${precio}</p>
             <p><strong>📅</strong> ${año}</p>
             <button onclick="añadirComparadorDesdeSugerencia(${index})">Seleccionar</button>
+            <button class="btn-buy" onclick="comprarSugerencia(${index})" ${coche.precio ? '' : 'disabled'}>${coche.precio ? 'Comprar' : 'Consultar'}</button>
         `;
 
         contenedor.appendChild(div);
@@ -166,15 +316,13 @@ function filtrarPorOpciones(lista) {
     const combustible = normalizarTexto(document.getElementById('filtro-combustible').value);
     const año = document.getElementById('filtro-año').value;
 
-    return lista.filter(coche => {
-        // Filtrar por combustible solo si existe en el coche
+    let resultados = lista.filter(coche => {
         if (combustible && coche.combustible) {
             if (!normalizarTexto(coche.combustible).includes(combustible)) {
                 return false;
             }
         }
 
-        // Filtrar por año
         if (año) {
             if (año === '2018') {
                 if (coche.año > 2018) return false;
@@ -185,6 +333,9 @@ function filtrarPorOpciones(lista) {
 
         return true;
     });
+
+    resultados = filtrarPorCategorias(resultados);
+    return resultados;
 }
 
 function mostrarCoches(lista) {
@@ -206,6 +357,7 @@ function mostrarCoches(lista) {
         const traccion = coche.traccion || 'N/A';
         const carroceria = coche.carroceria || 'N/A';
         const precio = coche.precio ? `$${coche.precio.toLocaleString()}` : 'Precio no disponible';
+        const categorias = obtenerCategoriasCoche(coche);
         const imagenHTML = construirImgCarImages(coche, 'coche-imagen', 400, 250);
         const source = coche.source ? `<small>Fuente: ${coche.source}</small>` : '';
 
@@ -215,6 +367,12 @@ function mostrarCoches(lista) {
         div.innerHTML = `
             ${imagenHTML}
             <h3>${coche.marca} ${modelo}</h3>
+            <div class="coche-tags">
+                ${categorias.map(cat => {
+                    const safeClass = cat.replace(/[^a-z0-9]+/gi, '-');
+                    return `<span class="coche-tag tag-${safeClass}">${cat}</span>`;
+                }).join('')}
+            </div>
             <p><strong>⚙️ Motor:</strong> ${cilindros} cilindros</p>
             <p><strong>💨 Potencia:</strong> ${potencia}</p>
             <p><strong>⛽ Combustible:</strong> ${combustible}</p>
@@ -224,6 +382,7 @@ function mostrarCoches(lista) {
             <p><strong>📅</strong> ${año}</p>
             ${source}
             <button onclick="añadirComparador(${index})">Comparar</button>
+            <button class="btn-buy" onclick="comprarCoche(${index})" ${coche.precio ? '' : 'disabled'}>${coche.precio ? 'Comprar' : 'Consultar'}</button>
         `;
 
         contenedor.appendChild(div);
@@ -344,12 +503,14 @@ function toggleModoBusqueda() {
     const resultsSection = document.getElementById('results-section');
     const heroSection = document.querySelector('.hero-section');
     const verTodosBtn = document.getElementById('ver-todos');
+    const btnHome = document.getElementById('btn-home');
 
     if (modoBusqueda) {
         // Mostrar modo búsqueda
         heroSection.style.display = 'none';
         searchSection.style.display = 'block';
         resultsSection.style.display = 'block';
+        btnHome.style.display = 'inline-block';
         verTodosBtn.textContent = 'Volver a Sugerencias';
         mostrarCoches(filtrarPorOpciones(coches));
     } else {
@@ -357,6 +518,7 @@ function toggleModoBusqueda() {
         heroSection.style.display = 'block';
         searchSection.style.display = 'none';
         resultsSection.style.display = 'none';
+        btnHome.style.display = 'none';
         verTodosBtn.textContent = 'Ver Todos los Vehículos';
         mostrarSugerencias();
     }
@@ -393,7 +555,40 @@ document.getElementById('busqueda').addEventListener('input', async (e) => {
     });
 });
 
+document.querySelectorAll('.category-checkbox').forEach(input => {
+    input.addEventListener('change', async () => {
+        const texto = document.getElementById('busqueda').value;
+        if (!texto.trim()) {
+            const filtrados = filtrarPorOpciones(coches);
+            mostrarCoches(filtrados);
+        } else {
+            const resultados = await buscarCoches(texto);
+            mostrarCoches(resultados);
+        }
+    });
+});
+
+document.getElementById('toggle-category-panel').addEventListener('click', () => {
+    document.getElementById('category-panel').classList.toggle('hidden');
+});
+
+document.getElementById('btn-home').addEventListener('click', () => {
+    toggleModoBusqueda();
+});
+
 document.getElementById('limpiar-comparador').addEventListener('click', () => {
     comparados = [];
     mostrarComparador();
+});
+
+document.getElementById('checkout-button').addEventListener('click', () => {
+    if (!carrito.length) return;
+    const nombres = carrito.map(c => `${c.marca} ${c.modelo}`).join(', ');
+    alert(`¡Compra completada! Has comprado: ${nombres}. Gracias por tu pedido.`);
+    carrito = [];
+    actualizarCarrito();
+});
+
+window.addEventListener('load', () => {
+    actualizarCarrito();
 });

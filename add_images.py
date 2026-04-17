@@ -40,5 +40,4 @@ def actualizar_coches_con_imagenes():
         print(f"Error: {e}")
 
 if __name__ == "__main__":
-    actualizar_coches_con_imagenes()</content>
-<parameter name="filePath">/Users/victorjaencomins/web coches/add_images.py
+    actualizar_coches_con_imagenes()

@@ -12,11 +12,100 @@ body {
     line-height: 1.6;
 }
 
+.category-dropdown {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 20;
+    display: inline-block;
+    text-align: left;
+    font-family: inherit;
+}
+
+.category-toggle {
+    background: #2c3e50;
+    color: #ffffff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.category-panel {
+    background: rgba(255, 255, 255, 0.98);
+    margin-top: 10px;
+    border-radius: 14px;
+    padding: 15px 15px 10px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.14);
+    width: 220px;
+}
+
+.category-panel.hidden {
+    display: none;
+}
+
+.category-option {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    color: #2c3e50;
+    cursor: pointer;
+}
+
+.category-option input {
+    margin-right: 10px;
+}
+
+.coche-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 0;
+}
+
+.coche-tag {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.8em;
+    background: #ecf0f1;
+    color: #2c3e50;
+    border: 1px solid transparent;
+}
+
+.coche-tag.lujo { background: linear-gradient(135deg, #f39c12, #d35400); color: white; }
+.coche-tag.tag-4x4 { background: linear-gradient(135deg, #16a085, #1abc9c); color: white; }
+.coche-tag.daily { background: linear-gradient(135deg, #2980b9, #3498db); color: white; }
+.coche-tag.diesel { background: linear-gradient(135deg, #7f8c8d, #95a5a6); color: white; }
+.coche-tag.gasolina { background: linear-gradient(135deg, #c0392b, #e74c3c); color: white; }
+.coche-tag.electrico { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; }
+
 .header {
     text-align: center;
     color: #2c3e50;
     margin-bottom: 40px;
     text-shadow: none;
+    position: relative;
+}
+
+.btn-home {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    background: #34495e;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-home:hover {
+    background: #2c3e50;
+    transform: translateX(3px);
 }
 
 .header h1 {
@@ -229,6 +318,89 @@ body {
     transform: scale(0.98);
 }
 
+.btn-buy,
+.btn-primary {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-buy:hover,
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.btn-buy:disabled,
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.cart-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.cart-section h2 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.cart-items {
+    display: grid;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #dfe6e9;
+}
+
+.cart-item p {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.cart-item button {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.cart-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.cart-summary p {
+    font-size: 1.1em;
+    margin: 0;
+}
+
 .lista-coches {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -241,7 +413,6 @@ body {
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-    cursor: pointer;
 }
 
 .coche:hover {
