@@ -15,11 +15,24 @@ Aplicación web para comparar y comprar coches con autenticación de usuario y b
 
 1. Ve a [Firebase Console](https://console.firebase.google.com/)
 2. Crea un nuevo proyecto
-3. Habilita Authentication con Google Provider
-4. Habilita Firestore Database
-5. Ve a Configuración del proyecto > Tus apps > Web app
-6. Copia las claves de configuración
-7. Pega las claves en `script.js` en la variable `firebaseConfig`
+3. **Authentication:**
+   - Ve a Authentication > Sign-in method
+   - Habilita "Google" como proveedor
+4. **Firestore Database:**
+   - Ve a Firestore Database > Crear base de datos
+   - Elige "Modo de prueba" para desarrollo
+5. **Configuración web:**
+   - Ve a Configuración del proyecto > Tus apps
+   - Haz clic en "</>" para añadir app web
+   - Copia el objeto `firebaseConfig`
+6. **Actualizar script.js:**
+   - Abre `script.js`
+   - Reemplaza el objeto `firebaseConfig` con tus claves reales
+   - O usa `firebase-config-example.js` como referencia
+
+### Estructura de Firestore
+- `usuarios/{userId}`: Datos del usuario (carrito, etc.)
+- `favoritos/{userId}`: Lista de coches favoritos
 
 ## Despliegue
 
