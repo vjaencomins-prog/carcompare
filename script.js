@@ -8,17 +8,19 @@ const VPIC_API = 'https://vpic.nhtsa.dot.gov/api/vehicles';
 
 // ⚠️ CONFIGURACIÓN: Pega aquí tus claves de Firebase Console
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "tu-proyecto.firebaseapp.com",
-    projectId: "tu-proyecto",
-    storageBucket: "tu-proyecto.appspot.com",
-    messagingSenderId: "tu-id",
-    appId: "tu-app-id"
+    apiKey: "AIzaSyD43VnRxL2pMGxt676rw9TFQVB7JCIHPmQ",
+    authDomain: "carcompare-b9451.firebaseapp.com",
+    projectId: "carcompare-b9451",
+    storageBucket: "carcompare-b9451.firebasestorage.app",
+    messagingSenderId: "944264641748",
+    appId: "1:944264641748:web:808e0c29d1ab465d564f41",
+    measurementId: "G-806CLNPF4F"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const analytics = firebase.analytics();
 
 function normalizarTexto(texto) {
     return String(texto)
