@@ -18,6 +18,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+console.log("Firebase inicializado correctamente");
 const auth = firebase.auth();
 const db = firebase.firestore();
 const analytics = firebase.analytics();
@@ -33,23 +34,39 @@ function normalizarTexto(texto) {
 
 // 1. Función de Login con Google
 async function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
+    console.log("Iniciando login con Google...");
     try {
-        await auth.signInWithPopup(provider);
+        const provider = new firebase.auth.GoogleAuthProvider();
+        console.log("Provider creado:", provider);
+        const result = await auth.signInWithPopup(provider);
+        console.log("Login exitoso:", result.user.displayName);
     } catch (error) {
         console.error("Error al entrar:", error);
+        alert("Error al iniciar sesión: " + error.message);
     }
+}
+
+// Función de logout
+function logout() {
+    console.log("Cerrando sesión...");
+    auth.signOut().then(() => {
+        console.log("Sesión cerrada correctamente");
+    }).catch((error) => {
+        console.error("Error al cerrar sesión:", error);
+    });
 }
 
 // 2. Detectar si el usuario está logueado
 auth.onAuthStateChanged(user => {
+    console.log("Estado de autenticación cambiado:", user ? "Usuario logueado" : "Usuario no logueado");
     const authUI = document.getElementById('auth-ui');
     if (user) {
+        console.log("Usuario:", user.displayName, user.email);
         authUI.innerHTML = `
             <div class="user-info">
                 <span>Hola, ${user.displayName.split(' ')[0]}</span>
-                <img src="${user.photoURL}">
-                <button onclick="auth.signOut()">Salir</button>
+                <img src="${user.photoURL}" alt="Foto de perfil">
+                <button onclick="logout()">Salir</button>
             </div>`;
         cargarDatosUsuario();
     } else {

@@ -21,14 +21,15 @@ Aplicación web para comparar y comprar coches con autenticación de usuario y b
 4. **Firestore Database:**
    - Ve a Firestore Database > Crear base de datos
    - Elige "Modo de prueba" para desarrollo
-5. **Configuración web:**
-   - Ve a Configuración del proyecto > Tus apps
-   - Haz clic en "</>" para añadir app web
-   - Copia el objeto `firebaseConfig`
+5. **Dominios autorizados:**
+   - Ve a Authentication > Configuración
+   - En "Dominios autorizados", añade:
+     - `carcompare-mu.vercel.app`
+     - `localhost` (para desarrollo local)
+     - Cualquier otro dominio donde uses la app
+
 6. **Actualizar script.js:**
-   - Abre `script.js`
-   - Reemplaza el objeto `firebaseConfig` con tus claves reales
-   - O usa `firebase-config-example.js` como referencia
+   - Las claves ya están configuradas correctamente
 
 ### Estructura de Firestore
 - `usuarios/{userId}`: Datos del usuario (carrito, etc.)

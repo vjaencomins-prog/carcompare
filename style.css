@@ -622,20 +622,29 @@ footer {
 
 .fav-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.6);
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.7);
     border: none;
     color: white;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 16px;
     transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
 }
 
 .fav-btn.active {
     color: #ff4757;
-    background: rgba(255, 71, 87, 0.8);
+    background: rgba(255, 71, 87, 0.9);
+}
+
+.fav-btn:hover {
+    background: rgba(0,0,0,0.9);
+    transform: scale(1.1);
 }
