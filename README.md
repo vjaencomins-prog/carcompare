@@ -35,6 +35,18 @@ Aplicación web para comparar y comprar coches con autenticación de usuario y b
 - `usuarios/{userId}`: Datos del usuario (carrito, etc.)
 - `favoritos/{userId}`: Lista de coches favoritos
 
+## 🔧 Troubleshooting
+
+### Login con Google no funciona
+1. **Revisa la consola del navegador** (F12 > Console) para ver errores
+2. **Verifica dominios autorizados** en Firebase Console
+3. **Ejecuta el script de debug**: Copia el contenido de `firebase-debug.js` en la consola
+4. **Comprueba que las claves** en `script.js` sean correctas
+
+### Botón de favoritos
+- Ahora es más pequeño (30x30px) y no solapa la imagen
+- Solo funciona si estás logueado con Google
+
 ## Despliegue
 
 La aplicación está configurada para desplegarse en Vercel con soporte para Firebase.
