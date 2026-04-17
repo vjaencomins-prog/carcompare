@@ -6,6 +6,20 @@ let vpicMakes = [];
 let modoBusqueda = false; // false = modo sugerencias, true = modo búsqueda
 const VPIC_API = 'https://vpic.nhtsa.dot.gov/api/vehicles';
 
+// ⚠️ CONFIGURACIÓN: Pega aquí tus claves de Firebase Console
+const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "tu-proyecto.firebaseapp.com",
+    projectId: "tu-proyecto",
+    storageBucket: "tu-proyecto.appspot.com",
+    messagingSenderId: "tu-id",
+    appId: "tu-app-id"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 function normalizarTexto(texto) {
     return String(texto)
         .toLowerCase()
@@ -13,6 +27,101 @@ function normalizarTexto(texto) {
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/\s+/g, ' ')
         .trim();
+}
+
+// 1. Función de Login con Google
+async function login() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+        await auth.signInWithPopup(provider);
+    } catch (error) {
+        console.error("Error al entrar:", error);
+    }
+}
+
+// 2. Detectar si el usuario está logueado
+auth.onAuthStateChanged(user => {
+    const authUI = document.getElementById('auth-ui');
+    if (user) {
+        authUI.innerHTML = `
+            <div class="user-info">
+                <span>Hola, ${user.displayName.split(' ')[0]}</span>
+                <img src="${user.photoURL}">
+                <button onclick="auth.signOut()">Salir</button>
+            </div>`;
+        cargarDatosUsuario();
+    } else {
+        authUI.innerHTML = `<button class="btn-google" onclick="login()">Entrar con Google</button>`;
+        // Limpiar datos locales si no hay usuario
+        carrito = [];
+        actualizarCarrito();
+    }
+});
+
+// 3. Cargar datos del usuario desde Firestore
+async function cargarDatosUsuario() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const userRef = db.collection('usuarios').doc(user.uid);
+        const doc = await userRef.get();
+        if (doc.exists) {
+            const data = doc.data();
+            carrito = data.carrito || [];
+            // Aquí puedes cargar favoritos si los tienes
+            actualizarCarrito();
+        }
+    } catch (error) {
+        console.error("Error cargando datos:", error);
+    }
+}
+
+// 4. Guardar datos del usuario en Firestore
+async function guardarDatosUsuario() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        await db.collection('usuarios').doc(user.uid).set({
+            carrito: carrito,
+            // Agrega más campos como favoritos si los implementas
+        }, { merge: true });
+    } catch (error) {
+        console.error("Error guardando datos:", error);
+    }
+}
+
+// 5. Toggle Favorito
+async function toggleFav(modelo) {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("¡Debes iniciar sesión para guardar favoritos!");
+        return;
+    }
+
+    try {
+        const userRef = db.collection('favoritos').doc(user.uid);
+        const doc = await userRef.get();
+        const favoritos = doc.exists ? doc.data() : {};
+
+        if (favoritos[modelo]) {
+            // Quitar favorito
+            delete favoritos[modelo];
+            alert(`${modelo} eliminado de favoritos`);
+        } else {
+            // Añadir favorito
+            favoritos[modelo] = true;
+            alert(`${modelo} añadido a favoritos`);
+        }
+
+        await userRef.set(favoritos);
+        
+        // Actualizar UI (puedes mejorar esto)
+        // Por ahora, solo un alert
+    } catch (error) {
+        console.error("Error con favoritos:", error);
+    }
 }
 
 async function cargarDatos() {
@@ -169,6 +278,7 @@ function comprarCoche(index) {
 
     carrito.push(coche);
     actualizarCarrito();
+    guardarDatosUsuario(); // Guardar en Firestore
     alert(`${coche.marca} ${coche.modelo} añadido a la cesta.`);
 }
 
@@ -194,6 +304,13 @@ function comprarSugerencia(index) {
 function eliminarDelCarrito(index) {
     carrito.splice(index, 1);
     actualizarCarrito();
+    guardarDatosUsuario(); // Guardar en Firestore
+}
+
+function vaciarCarrito() {
+    carrito = [];
+    actualizarCarrito();
+    guardarDatosUsuario(); // Guardar en Firestore
 }
 
 function construirImgCarImages(coche, clase, ancho = 400, alto = 250) {
@@ -365,7 +482,10 @@ function mostrarCoches(lista) {
         div.classList.add('coche');
 
         div.innerHTML = `
-            ${imagenHTML}
+            <div style="position: relative;">
+                ${imagenHTML}
+                <button class="fav-btn" onclick="toggleFav('${coche.marca} ${modelo}')">♥</button>
+            </div>
             <h3>${coche.marca} ${modelo}</h3>
             <div class="coche-tags">
                 ${categorias.map(cat => {

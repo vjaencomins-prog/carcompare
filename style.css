@@ -560,3 +560,82 @@ footer {
         padding: 20px;
     }
 }
+
+/* Firebase Auth Styles */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.btn-google {
+    background: #4285F4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-google:hover {
+    background: #3367d6;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333;
+}
+
+.user-info img {
+    width: 35px;
+    border-radius: 50%;
+}
+
+.user-info button {
+    background: none;
+    border: 1px solid #555;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+.fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s;
+}
+
+.fav-btn.active {
+    color: #ff4757;
+    background: rgba(255, 71, 87, 0.8);
+}
