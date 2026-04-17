@@ -110,4 +110,4 @@ if __name__ == '__main__':
 import serverless_wsgi
 
 def handler(event, context):
-    return serverless_wsgi.handle(event, context, app)
+    return serverless_wsgi.handle_request(app, event, context)
