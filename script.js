@@ -28,14 +28,17 @@ console.log("Auth Domain:", firebaseConfig.authDomain);
 
 // ⚠️ TEMPORAL: Deshabilitar Firebase hasta que se configure correctamente
 let firebaseInitialized = false;
+let auth = null;
+let db = null;
+let analytics = null;
 
 try {
     firebase.initializeApp(firebaseConfig);
     firebaseInitialized = true;
     console.log("✅ Firebase inicializado correctamente");
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const analytics = firebase.analytics();
+    auth = firebase.auth();
+    db = firebase.firestore();
+    analytics = firebase.analytics();
 } catch (error) {
     console.error("❌ Error al inicializar Firebase:", error);
     console.error("🔧 SOLUCIÓN: Crea un nuevo proyecto en Firebase Console");
@@ -43,6 +46,7 @@ try {
 
     // Modo sin Firebase: la app funciona pero sin login/persistencia
     console.log("⚠️ Modo sin Firebase activado - Funcionalidad limitada");
+    firebaseInitialized = false;
 }
 
 function normalizarTexto(texto) {
@@ -76,7 +80,7 @@ async function login() {
 
 // Función de logout
 function logout() {
-    if (!firebaseInitialized) {
+    if (!firebaseInitialized || !auth) {
         alert("Firebase no está configurado.");
         return;
     }
@@ -90,7 +94,7 @@ function logout() {
 }
 
 // 2. Detectar si el usuario está logueado
-if (firebaseInitialized) {
+if (firebaseInitialized && auth) {
     auth.onAuthStateChanged(user => {
         console.log("Estado de autenticación cambiado:", user ? "Usuario logueado" : "Usuario no logueado");
         const authUI = document.getElementById('auth-ui');
@@ -118,7 +122,7 @@ if (firebaseInitialized) {
 }
 // 3. Cargar datos del usuario desde Firestore
 async function cargarDatosUsuario() {
-    if (!firebaseInitialized) return;
+    if (!firebaseInitialized || !auth || !db) return;
 
     const user = auth.currentUser;
     if (!user) return;
@@ -139,7 +143,7 @@ async function cargarDatosUsuario() {
 
 // 4. Guardar datos del usuario en Firestore
 async function guardarDatosUsuario() {
-    if (!firebaseInitialized) return;
+    if (!firebaseInitialized || !auth || !db) return;
 
     const user = auth.currentUser;
     if (!user) return;
@@ -156,7 +160,7 @@ async function guardarDatosUsuario() {
 
 // 5. Toggle Favorito
 async function toggleFav(modelo) {
-    if (!firebaseInitialized) {
+    if (!firebaseInitialized || !auth || !db) {
         alert("Firebase no está configurado. Los favoritos requieren iniciar sesión.");
         return;
     }
@@ -184,8 +188,6 @@ async function toggleFav(modelo) {
 
         await userRef.set(favoritos);
 
-        // Actualizar UI (puedes mejorar esto)
-        // Por ahora, solo un alert
     } catch (error) {
         console.error("Error con favoritos:", error);
     }
