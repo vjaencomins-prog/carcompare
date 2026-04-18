@@ -38,6 +38,14 @@ Si ves el error `Firebase: Error (auth/configuration-not-found)`, significa que 
 
 Si aún no funciona, ejecuta `firebase-debug.js` en la consola del navegador para diagnóstico detallado.
 
+#### Error "Can't find variable: auth"
+- **Causa**: Firebase no se inicializó correctamente
+- **Solución**: La app ahora maneja esto automáticamente mostrando "Login (No disponible)"
+- **Para arreglar completamente**: Configura un nuevo proyecto Firebase siguiendo `setup-firebase.js`
+
+#### Probar la aplicación
+Ejecuta `test-app.js` en la consola para verificar que todos los componentes funcionan correctamente.
+
 ## Configuración de Firebase
 
 1. Ve a [Firebase Console](https://console.firebase.google.com/)
