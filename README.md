@@ -2,14 +2,41 @@
 
 Aplicación web para comparar y comprar coches con autenticación de usuario y base de datos Firebase.
 
-## Características
+## ⚠️ IMPORTANTE: Firebase Configuration Error
 
-- ✅ Búsqueda y filtrado de coches
-- ✅ Comparador de hasta 3 coches
-- ✅ Carrito de compras persistente
-- ✅ Sistema de favoritos
-- ✅ Autenticación con Google
-- ✅ Datos guardados en Firebase Firestore
+Si ves el error `Firebase: Error (auth/configuration-not-found)`, significa que el proyecto de Firebase actual no existe o está mal configurado.
+
+### 🚀 Solución Rápida
+
+**Ejecuta el contenido de `setup-firebase.js` en la consola del navegador** para ver la guía completa paso a paso.
+
+### Pasos para arreglar:
+
+1. **Crear nuevo proyecto Firebase:**
+   - Ve a https://console.firebase.google.com/
+   - Crea proyecto llamado "carcompare" (o similar)
+
+2. **Habilitar servicios:**
+   - **Authentication:** Habilita Google Sign-in
+   - **Firestore:** Crea base de datos en modo prueba
+   - **Analytics:** Opcional pero recomendado
+
+3. **Configurar dominios:**
+   - En Authentication > Configuración > Dominios autorizados
+   - Añade: `carcompare-mu.vercel.app` y `localhost`
+
+4. **Obtener nuevas claves:**
+   - Configuración del proyecto > Tus apps > Web app
+   - Copia el `firebaseConfig` y reemplaza en `script.js`
+
+5. **Probar:**
+   - Sube cambios a GitHub
+   - Ve a carcompare-mu.vercel.app
+   - El login debería funcionar
+
+### 🔧 Troubleshooting
+
+Si aún no funciona, ejecuta `firebase-debug.js` en la consola del navegador para diagnóstico detallado.
 
 ## Configuración de Firebase
 

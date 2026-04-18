@@ -6,8 +6,12 @@ let vpicMakes = [];
 let modoBusqueda = false; // false = modo sugerencias, true = modo búsqueda
 const VPIC_API = 'https://vpic.nhtsa.dot.gov/api/vehicles';
 
-// ⚠️ CONFIGURACIÓN: Pega aquí tus claves de Firebase Console
+// ⚠️ CONFIGURACIÓN TEMPORAL: Reemplaza con tus claves reales de Firebase Console
+// ERROR: El proyecto actual 'carcompare-b9451' parece no existir o estar mal configurado
+// SOLUCIÓN: Crea un nuevo proyecto en https://console.firebase.google.com/
+
 const firebaseConfig = {
+    // ⚠️ ESTAS CLAVES PUEDEN NO FUNCIONAR - Crea un nuevo proyecto
     apiKey: "AIzaSyD43VnRxL2pMGxt676rw9TFQVB7JCIHPmQ",
     authDomain: "carcompare-b9451.firebaseapp.com",
     projectId: "carcompare-b9451",
@@ -17,11 +21,29 @@ const firebaseConfig = {
     measurementId: "G-806CLNPF4F"
 };
 
-firebase.initializeApp(firebaseConfig);
-console.log("Firebase inicializado correctamente");
-const auth = firebase.auth();
-const db = firebase.firestore();
-const analytics = firebase.analytics();
+// Verificar configuración antes de inicializar
+console.log("🔍 Verificando configuración de Firebase...");
+console.log("Project ID:", firebaseConfig.projectId);
+console.log("Auth Domain:", firebaseConfig.authDomain);
+
+// ⚠️ TEMPORAL: Deshabilitar Firebase hasta que se configure correctamente
+let firebaseInitialized = false;
+
+try {
+    firebase.initializeApp(firebaseConfig);
+    firebaseInitialized = true;
+    console.log("✅ Firebase inicializado correctamente");
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const analytics = firebase.analytics();
+} catch (error) {
+    console.error("❌ Error al inicializar Firebase:", error);
+    console.error("🔧 SOLUCIÓN: Crea un nuevo proyecto en Firebase Console");
+    console.log("📋 Ejecuta setup-firebase.js para instrucciones detalladas");
+
+    // Modo sin Firebase: la app funciona pero sin login/persistencia
+    console.log("⚠️ Modo sin Firebase activado - Funcionalidad limitada");
+}
 
 function normalizarTexto(texto) {
     return String(texto)
@@ -34,6 +56,12 @@ function normalizarTexto(texto) {
 
 // 1. Función de Login con Google
 async function login() {
+    if (!firebaseInitialized) {
+        alert("Firebase no está configurado. Revisa la consola para instrucciones.");
+        console.log("📋 Ejecuta setup-firebase.js para configurar Firebase correctamente");
+        return;
+    }
+
     console.log("Iniciando login con Google...");
     try {
         const provider = new firebase.auth.GoogleAuthProvider();
@@ -48,6 +76,11 @@ async function login() {
 
 // Función de logout
 function logout() {
+    if (!firebaseInitialized) {
+        alert("Firebase no está configurado.");
+        return;
+    }
+
     console.log("Cerrando sesión...");
     auth.signOut().then(() => {
         console.log("Sesión cerrada correctamente");
@@ -57,28 +90,36 @@ function logout() {
 }
 
 // 2. Detectar si el usuario está logueado
-auth.onAuthStateChanged(user => {
-    console.log("Estado de autenticación cambiado:", user ? "Usuario logueado" : "Usuario no logueado");
+if (firebaseInitialized) {
+    auth.onAuthStateChanged(user => {
+        console.log("Estado de autenticación cambiado:", user ? "Usuario logueado" : "Usuario no logueado");
+        const authUI = document.getElementById('auth-ui');
+        if (user) {
+            console.log("Usuario:", user.displayName, user.email);
+            authUI.innerHTML = `
+                <div class="user-info">
+                    <span>Hola, ${user.displayName.split(' ')[0]}</span>
+                    <img src="${user.photoURL}" alt="Foto de perfil">
+                    <button onclick="logout()">Salir</button>
+                </div>`;
+            cargarDatosUsuario();
+        } else {
+            authUI.innerHTML = `<button class="btn-google" onclick="login()">Entrar con Google</button>`;
+            // Limpiar datos locales si no hay usuario
+            carrito = [];
+            actualizarCarrito();
+        }
+    });
+} else {
+    // Modo sin Firebase
+    console.log("⚠️ Firebase no inicializado - mostrando UI básica");
     const authUI = document.getElementById('auth-ui');
-    if (user) {
-        console.log("Usuario:", user.displayName, user.email);
-        authUI.innerHTML = `
-            <div class="user-info">
-                <span>Hola, ${user.displayName.split(' ')[0]}</span>
-                <img src="${user.photoURL}" alt="Foto de perfil">
-                <button onclick="logout()">Salir</button>
-            </div>`;
-        cargarDatosUsuario();
-    } else {
-        authUI.innerHTML = `<button class="btn-google" onclick="login()">Entrar con Google</button>`;
-        // Limpiar datos locales si no hay usuario
-        carrito = [];
-        actualizarCarrito();
-    }
-});
-
+    authUI.innerHTML = `<button class="btn-secondary" onclick="alert('Firebase no configurado. Revisa la consola para instrucciones.')">Login (No disponible)</button>`;
+}
 // 3. Cargar datos del usuario desde Firestore
 async function cargarDatosUsuario() {
+    if (!firebaseInitialized) return;
+
     const user = auth.currentUser;
     if (!user) return;
 
@@ -98,6 +139,8 @@ async function cargarDatosUsuario() {
 
 // 4. Guardar datos del usuario en Firestore
 async function guardarDatosUsuario() {
+    if (!firebaseInitialized) return;
+
     const user = auth.currentUser;
     if (!user) return;
 
@@ -113,6 +156,11 @@ async function guardarDatosUsuario() {
 
 // 5. Toggle Favorito
 async function toggleFav(modelo) {
+    if (!firebaseInitialized) {
+        alert("Firebase no está configurado. Los favoritos requieren iniciar sesión.");
+        return;
+    }
+
     const user = auth.currentUser;
     if (!user) {
         alert("¡Debes iniciar sesión para guardar favoritos!");
@@ -135,7 +183,7 @@ async function toggleFav(modelo) {
         }
 
         await userRef.set(favoritos);
-        
+
         // Actualizar UI (puedes mejorar esto)
         // Por ahora, solo un alert
     } catch (error) {
